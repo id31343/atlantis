@@ -66,8 +66,6 @@ resource "aws_instance" "alpha" {
 
   vpc_security_group_ids = [aws_security_group.atlantis.id]
 
-  # user_data = file("user_data.sh")
-
   tags = {
     Name = "atlantis"
   }
