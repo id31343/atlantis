@@ -99,8 +99,6 @@ resource "aws_instance" "alpha" {
 
   iam_instance_profile = aws_iam_instance_profile.atlantis.name
 
-  # user_data = file("user_data.sh")
-
   tags = {
     Name = "atlantis"
   }
