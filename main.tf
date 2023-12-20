@@ -58,17 +58,61 @@ resource "aws_security_group" "atlantis" {
   }
 }
 
+data "aws_iam_policy_document" "ec2_trust_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_instance_profile" "atlantis" {
+  name = var.atlantis_role_name
+  role = aws_iam_role.atlantis.name
+}
+
+resource "aws_iam_role_policy_attachment" "admin" {
+  role       = aws_iam_role.atlantis.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+resource "aws_iam_role" "atlantis" {
+  name               = var.atlantis_role_name
+  description        = "This role is specific for Atlantis"
+  assume_role_policy = data.aws_iam_policy_document.ec2_trust_policy.json
+
+  tags = {
+    Name = var.atlantis_role_name
+  }
+}
+
+# Change name of the resource to Atlantis
 resource "aws_instance" "alpha" {
   ami           = data.aws_ami.latest_for_atlantis.id
   instance_type = var.atlantis_instance_type
 
-  availability_zone = data.aws_availability_zones.available.names[0]
-
+  availability_zone      = data.aws_availability_zones.available.names[0]
   vpc_security_group_ids = [aws_security_group.atlantis.id]
+
+  iam_instance_profile = aws_iam_instance_profile.atlantis.name
 
   # user_data = file("user_data.sh")
 
   tags = {
     Name = "atlantis"
   }
+}
+
+module "tfstate_backend" {
+  source  = "cloudposse/tfstate-backend/aws"
+  version = "1.1.1"
+
+  s3_bucket_name = var.backend_s3_name
+
+  # mfa_delete = true
+
+  dynamodb_enabled = false
 }

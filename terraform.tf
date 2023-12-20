@@ -7,10 +7,24 @@ terraform {
       version = "~> 5.0"
     }
   }
+
+  backend "s3" {
+    bucket = "vadim.baranovsky-atlantis"
+    key    = "terraform.tfstate"
+    region = "eu-north-1"
+    # role_arn = "arn:aws:iam::738460351922:role/Atlantis"
+    encrypt = true
+  }
 }
 
 provider "aws" {
   region = var.region
+
+  # Put in variables
+  assume_role {
+    role_arn     = "arn:aws:iam::738460351922:role/Atlantis"
+    session_name = "atlantis"
+  }
 
   default_tags {
     tags = var.default_tags

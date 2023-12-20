@@ -15,6 +15,15 @@ variable "default_tags" {
   }
 }
 
+# ================================== BACKEND S3 ================================== 
+
+variable "backend_s3_name" {
+  description = "AWS S3 name for Terraform backend"
+  nullable    = false
+  type        = string
+  default     = "vadim.baranovsky-atlantis"
+}
+
 # ================================== ATLANTIS EC2 ================================== 
 
 variable "atlantis_ami_owner" {
@@ -50,6 +59,13 @@ variable "atlantis_key_description" {
   nullable    = false
   type        = string
   default     = "Private key for Atlantis host"
+}
+
+variable "atlantis_role_name" {
+  description = "AWS Atlantis role name"
+  nullable    = false
+  type        = string
+  default     = "Atlantis"
 }
 
 variable "atlantis_sg_name" {
